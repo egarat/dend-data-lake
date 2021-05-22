@@ -29,10 +29,10 @@ def process_song_data(spark, input_data, output_data):
     df = spark.read.json(song_data)
 
     # extract columns to create songs table
-    songs_table = 
+    songs_table = df.select("song_id", "title", "artist_id", "year", "duration").distinct()
     
     # write songs table to parquet files partitioned by year and artist
-    songs_table
+    songs_table.write.mode("overwrite").partitionBy("year", "artist_id").parquet(f"{output_data}songs")
 
     # extract columns to create artists table
     artists_table = 
