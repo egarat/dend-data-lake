@@ -2,8 +2,9 @@ import configparser
 from datetime import datetime
 import os
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col
+from pyspark.sql.functions import udf, col, row_number
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
+from pyspark.sql.window import Window
 
 
 config = configparser.ConfigParser()
@@ -35,7 +36,8 @@ def process_song_data(spark, input_data, output_data):
     songs_table.write.mode("overwrite").partitionBy("year", "artist_id").parquet(f"{output_data}songs")
 
     # extract columns to create artists table
-    artists_table = df.selectExpr("artist_id", "artist_name AS name", "artist_location AS location", "artist_latitude AS latitude", "artist_longitude AS longitude").dropDuplicates(["artist_id"])
+    artists_table = df.selectExpr("artist_id", "artist_name AS name", "artist_location AS location", "artist_latitude AS latitude", "artist_longitude AS longitude") \
+        .dropDuplicates(["artist_id"])
     
     # write artists table to parquet files
     artists_table.write.mode("overwrite").parquet(f"{output_data}artists")
@@ -51,11 +53,13 @@ def process_log_data(spark, input_data, output_data):
     # filter by actions for song plays
     df = df.where(df["page"] == "NextSong")
 
-    # extract columns for users table    
-    users_table = ""
+    # extract columns for users table
+    # applying a window function and retrieve the most recent entry of each userId
+    users_table = df.withColumn("row_number", row_number().over(Window.partitionBy("userId").orderBy(col("ts").desc()))).where(col("row_number") == 1) \
+        .selectExpr("userId AS user_id", "firstName AS first_name", "lastName AS last_name", "gender", "level")
     
     # write users table to parquet files
-    users_table
+    users_table.write.mode("overwrite").parquet(f"{output_data}users")
 
     # create timestamp column from original timestamp column
     get_timestamp = udf()
