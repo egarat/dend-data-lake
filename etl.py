@@ -5,6 +5,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf, col, row_number
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
 from pyspark.sql.window import Window
+from pyspark.sql.types import TimestampType
 
 
 config = configparser.ConfigParser()
@@ -62,9 +63,9 @@ def process_log_data(spark, input_data, output_data):
     # write users table to parquet files
     users_table.write.mode("overwrite").parquet(f"{output_data}users")
 
-    # create timestamp column from original timestamp column
-    get_timestamp = udf()
-    df = ""
+    # create timestamp column from original timestamp (unix timestamp) column
+    get_timestamp = udf(lambda x: datetime.fromtimestamp(x / 1000.0), TimestampType())
+    df = df.withColumn("timestamp", get_timestamp("ts"))
     
     # create datetime column from original timestamp column
     get_datetime = udf()
