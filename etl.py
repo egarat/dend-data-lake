@@ -55,7 +55,8 @@ def process_log_data(spark, input_data, output_data):
 
     # extract columns for users table
     # applying a window function and retrieve the most recent entry of each userId
-    users_table = df.withColumn("row_number", row_number().over(Window.partitionBy("userId").orderBy(col("ts").desc()))).where(col("row_number") == 1) \
+    users_window = Window.partitionBy("userId").orderBy(col("ts").desc())
+    users_table = df.withColumn("row_number", row_number().over(users_window)).where(col("row_number") == 1) \
         .selectExpr("userId AS user_id", "firstName AS first_name", "lastName AS last_name", "gender", "level")
     
     # write users table to parquet files
