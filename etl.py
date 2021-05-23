@@ -2,8 +2,8 @@ import configparser
 from datetime import datetime
 import os
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col, row_number, monotonically_increasing_id
-from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, dayofweek, date_format
+from pyspark.sql.functions import udf, col, row_number
+from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, dayofweek
 from pyspark.sql.window import Window
 from pyspark.sql.types import TimestampType
 
