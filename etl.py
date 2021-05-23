@@ -99,7 +99,8 @@ def process_log_data(spark, input_data, output_data):
                 .withColumn("week", weekofyear("start_time")) \
                 .withColumn("month", month("start_time")) \
                 .withColumn("year", year("start_time")) \
-                .withColumn("weekday", dayofweek("start_time"))
+                .withColumn("weekday", dayofweek("start_time")) \
+                .dropDuplicates(["start_time"])
     
     # write time table to parquet files partitioned by year and month
     time_table.write.mode("overwrite").partitionBy("year", "month").parquet(f"{output_data}time")
