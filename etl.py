@@ -68,13 +68,13 @@ def process_log_data(spark, input_data, output_data):
     df = df.withColumn("timestamp", get_timestamp("ts"))
   
     # extract columns to create time table
-    time_table = df.selectExpr("timestamp AS start_date") \
-                .withColumn("hour", hour("start_date")) \
-                .withColumn("day", dayofmonth("start_date")) \
-                .withColumn("week", weekofyear("start_date")) \
-                .withColumn("month", month("start_date")) \
-                .withColumn("year", year("start_date")) \
-                .withColumn("weekday", dayofweek("start_date"))
+    time_table = df.selectExpr("timestamp AS start_time") \
+                .withColumn("hour", hour("start_time")) \
+                .withColumn("day", dayofmonth("start_time")) \
+                .withColumn("week", weekofyear("start_time")) \
+                .withColumn("month", month("start_time")) \
+                .withColumn("year", year("start_time")) \
+                .withColumn("weekday", dayofweek("start_time"))
     
     # write time table to parquet files partitioned by year and month
     time_table.write.mode("overwrite").partitionBy("year", "month").parquet(f"{output_data}time")
