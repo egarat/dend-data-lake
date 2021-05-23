@@ -16,6 +16,13 @@ os.environ['AWS_SECRET_ACCESS_KEY']=config.get("AWS", "AWS_SECRET_ACCESS_KEY")
 
 
 def create_spark_session():
+    """
+    Creates a SparkSession object used for the ETL process.
+
+        Returns:
+            spark (object): A reference to the SparkSession provided by the EMR cluster.
+    """
+
     spark = SparkSession \
         .builder \
         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0") \
@@ -24,6 +31,15 @@ def create_spark_session():
 
 
 def process_song_data(spark, input_data, output_data):
+    """
+    Loads and transforms 'song_data' from source S3 bucket. Transformed data will be stored on target S3 bucket with the prefix 'songs' and 'artists' in Parquet file format.
+
+        Parameters:
+            spark (object): A reference to the SparkSession provided by the EMR cluster.
+            input_data (string): String representing the source S3 bucket in the format "s3://<BUCKET_NAME>"
+            output_data (string): String representing the target S3 bucket where the transformed Parquet files should be persisted.
+    """
+
     # get filepath to song data file
     song_data = f"{input_data}song_data/*/*/*/*.json"
     
@@ -45,6 +61,15 @@ def process_song_data(spark, input_data, output_data):
 
 
 def process_log_data(spark, input_data, output_data):
+    """
+    Loads and transforms 'data_data' from source S3 bucket. Transformed data will be stored on target S3 bucket with the prefix 'users', 'time', and 'songplays' in Parquet file format.
+
+        Parameters:
+            spark (object): A reference to the SparkSession provided by the EMR cluster.
+            input_data (string): String representing the source S3 bucket in the format "s3://<BUCKET_NAME>"
+            output_data (string): String representing the target S3 bucket where the transformed Parquet files should be persisted.
+    """
+
     # get filepath to log data file
     log_data = f"{input_data}log_data/*/*/*.json"
 
@@ -94,6 +119,13 @@ def process_log_data(spark, input_data, output_data):
 
 
 def main():
+    """
+    Entry function that will trigger the ETL process. The process consists of the following steps:
+        - Extract JSON source files from S3 bucket 'udacity-dend' and load them into Spark dataframes
+        - Perform transformations on source dataframes and load them into entities dataframes
+        - Write entities dataframes on target S3 bucket as Parquet with a pre-defined S3 prefix representing the entity
+    """
+    
     spark = create_spark_session()
     input_data = "s3://udacity-dend/"
     output_data = "s3://dend-egarat/project_4/"
