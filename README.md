@@ -65,7 +65,7 @@ Here is a screenshot of a log file:
 The data model will be a star schema consisting of the following tables:
 
 ![Star Schema](images/erd_star_schema.png)
-> This image is taken from project 2 and applies to Redshift. The core concept remains the same.
+> This image is taken from [project 3](https://github.com/egarat/dend-data-warehouse) and applies to Redshift. The core concept remains the same.
 
 Since the data will be stored as Parquet files, the tables will be representated by S3 prefixes and partitioned as followed:
 
