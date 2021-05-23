@@ -47,7 +47,7 @@ def process_song_data(spark, input_data, output_data):
     df = spark.read.json(song_data)
 
     # extract columns to create songs table
-    songs_table = df.select("song_id", "title", "artist_id", "year", "duration").distinct()
+    songs_table = df.select("song_id", "title", "artist_id", "year", "duration").dropDuplicates(["song_id"])
     
     # write songs table to parquet files partitioned by year and artist
     songs_table.write.mode("overwrite").partitionBy("year", "artist_id").parquet(f"{output_data}songs")
@@ -80,7 +80,7 @@ def process_log_data(spark, input_data, output_data):
     df = df.where(df["page"] == "NextSong")
 
     # extract columns for users table
-    # applying a window function and retrieve the most recent entry of each userId
+    # applying a window function to drop duplicate userId and retrieve only the most recent userId
     users_window = Window.partitionBy("userId").orderBy(col("ts").desc())
     users_table = df.withColumn("row_number", row_number().over(users_window)).where(col("row_number") == 1) \
         .selectExpr("userId AS user_id", "firstName AS first_name", "lastName AS last_name", "gender", "level")
@@ -125,7 +125,7 @@ def main():
         - Perform transformations on source dataframes and load them into entities dataframes
         - Write entities dataframes on target S3 bucket as Parquet with a pre-defined S3 prefix representing the entity
     """
-    
+
     spark = create_spark_session()
     input_data = "s3://udacity-dend/"
     output_data = "s3://dend-egarat/project_4/"
